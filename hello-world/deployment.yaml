@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-ui
+  labels:
+    product: engineering-productivity
+    team: deploy-platform
+    project: hello-world
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: hello-world-ui
+  template:
+    metadata:
+      labels:
+        app: hello-world-ui
+        product: engineering-productivity
+        team: deploy-platform
+        project: hello-world
+    spec:
+      containers:
+        - image: gcr.io/heptio-images/ks-hello-world-demo:0.2
+          name: hello-world-ui
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: hello-world-ui
+            - secretRef:
+                name: hello-world-ui

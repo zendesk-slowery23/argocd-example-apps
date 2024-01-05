@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world-ui
+  labels:
+    product: engineering-productivity
+    team: deploy-platform
+    project: hello-world
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: hello-world-ui
