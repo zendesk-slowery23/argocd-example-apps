@@ -21,7 +21,7 @@ spec:
         project: hello-world
     spec:
       containers:
-        - image: gcr.io/heptio-images/ks-hello-world-demo:0.2
+        - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
           name: hello-world-ui
           ports:
             - containerPort: 80
