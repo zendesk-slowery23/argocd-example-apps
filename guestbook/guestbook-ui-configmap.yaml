@@ -4,3 +4,4 @@ metadata:
   name: guestbook-ui
 data:
   SOMETHING: cool
+  FOO: bar

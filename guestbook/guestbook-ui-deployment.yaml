@@ -19,6 +19,7 @@ spec:
         product: engineering-productivity
         team: deploy-platform
         project: guestbook
+        version: something
     spec:
       containers:
         - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
