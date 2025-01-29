@@ -30,3 +30,6 @@ spec:
                 name: hello-world-ui
             - secretRef:
                 name: hello-world-ui
+          env:
+            - name: foo
+              value: bar
