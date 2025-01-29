@@ -23,6 +23,15 @@ spec:
       containers:
         - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
           name: hello-world-ui
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "false"
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 5
           ports:
             - containerPort: 80
           envFrom:
