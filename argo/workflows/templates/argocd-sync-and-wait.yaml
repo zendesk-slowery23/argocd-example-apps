@@ -71,6 +71,6 @@ spec:
         echo "Running as ArgoCD User:"
         argocd account get-user-info {{inputs.parameters.flags}}
 
-        argocd app set {{inputs.parameters.application-name}} --revision {{inputs.parameters.revision}}
-        argocd app sync {{inputs.parameters.application-name}} --revision {{inputs.parameters.revision}} {{inputs.parameters.flags}}
-        argocd app wait {{inputs.parameters.application-name}} --health {{inputs.parameters.flags}}
+        argocd app set {{inputs.parameters.application-name}} --revision {{inputs.parameters.revision}} --insecure
+        argocd app sync {{inputs.parameters.application-name}} --revision {{inputs.parameters.revision}} {{inputs.parameters.flags}} --insecure
+        argocd app wait {{inputs.parameters.application-name}} --health {{inputs.parameters.flags}} --insecure
