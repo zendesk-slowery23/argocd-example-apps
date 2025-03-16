@@ -32,9 +32,9 @@ spec:
         arguments:
           parameters:
             - name: application-name
-              value: {{ workflow.parameters.application-name }}
+              value: "{{ workflow.parameters.application-name }}"
             - name: revision
-              value: {{ workflow.parameters.revision }}
+              value: "{{ workflow.parameters.revision }}"
         templateRef:
           name: argocd-sync-and-wait
           template: argocd-sync-and-wait
