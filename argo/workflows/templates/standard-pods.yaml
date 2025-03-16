@@ -25,7 +25,9 @@ spec:
         template: echo
       - name: pod26
         dependencies: [buddy]
-        template: echo
+        templateRef:
+          name: argocd-sync-and-wait
+          template: argocd-sync-and-wait
       - name: pod15
         dependencies: [pod26]
         template: echo
@@ -35,3 +37,7 @@ spec:
       - name: pod25
         dependencies: [pod26]
         template: echo
+      - name: continue?
+        dependencies: [pod15, pod17, pod25]
+        activeDeadlineSeconds: 120
+        suspend: {}
