@@ -50,4 +50,7 @@ spec:
       - name: continue
         dependencies: [pod15, pod17, pod25]
         activeDeadlineSeconds: 120
-        suspend: {}
+        template: judgement
+
+  - name: judgement
+    suspend: {}
