@@ -35,6 +35,10 @@ spec:
               value: "{{ workflow.parameters.application-name }}"
             - name: revision
               value: "{{ workflow.parameters.revision }}"
+            - name: argocd-server-address
+              value: argocd-server.argocd.svc.cluster.local
+            - name: argocd-credentials-secret
+              value: argocd-credentials
         templateRef:
           name: argocd-sync-and-wait
           template: argocd-sync-and-wait
