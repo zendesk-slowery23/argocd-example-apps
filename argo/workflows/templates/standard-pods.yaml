@@ -14,47 +14,146 @@ spec:
       - name: revision
   entrypoint: main
   templates:
-  - name: echo
-    inputs:
-      parameters:
-      - name: sleep
-        value: "5"
-    container:
-      image: alpine:3.7
-      command: [sleep, "{{inputs.parameters.sleep}}"]
   - name: main
     dag:
       tasks:
       - name: buddy
-        template: echo
+        template: judgement
       - name: pod26
         dependencies: [buddy]
+        template: argocd-sync-and-wait
         arguments:
           parameters:
             - name: application-name
-              value: "{{ workflow.parameters.application-name }}"
+              value: "{{workflow.parameters.application-name}}"
             - name: revision
-              value: "{{ workflow.parameters.revision }}"
+              value: "{{workflow.parameters.revision}}"
             - name: argocd-server-address
               value: argocd-server.argocd.svc.cluster.local
             - name: argocd-credentials-secret
               value: argocd-credentials
-        templateRef:
-          name: argocd-sync-and-wait
-          template: argocd-sync-and-wait
       - name: pod15
         dependencies: [pod26]
-        template: echo
-      - name: pod17
-        dependencies: [pod26]
-        template: echo
+        template: sleep
       - name: pod25
         dependencies: [pod26]
-        template: echo
-      - name: continue
-        dependencies: [pod15, pod17, pod25]
-        activeDeadlineSeconds: 120
+        template: sleep
+      - name: pod30
+        dependencies: [pod26]
+        template: sleep
+      - name: phase3-continue
+        dependencies: [pod15, pod25, pod30]
         template: judgement
+      - name: pod13
+        dependencies: [phase3-continue]
+        template: sleep
+      - name: pod17
+        dependencies: [phase3-continue]
+        template: sleep
+      - name: pod18
+        dependencies: [phase3-continue]
+        template: sleep
+      - name: pod19
+        dependencies: [phase3-continue]
+        template: sleep
+      - name: pod31
+        dependencies: [phase3-continue]
+        template: sleep
+      - name: phase-4
+        dependencies: [pod13, pod17, pod18, pod19, pod31]
+        template: phase-4
+
+  - name: sleep
+    inputs:
+      parameters:
+      - name: sleep
+        value: "3"
+    container:
+      image: alpine:3.7
+      command: [sleep, "{{inputs.parameters.sleep}}"]
 
   - name: judgement
     suspend: {}
+
+  - name: phase-4
+    dag:
+      tasks:
+      - name: soak
+        template: sleep
+        arguments:
+          parameters:
+            - name: sleep
+              value: "10"
+      - name: pod20
+        dependencies: [soak]
+        template: sleep
+      - name: pod23
+        dependencies: [soak]
+        template: sleep
+      - name: pod27
+        dependencies: [soak]
+        template: sleep
+      - name: pod28
+        dependencies: [soak]
+        template: sleep
+      - name: pod29
+        dependencies: [soak]
+        template: sleep
+
+  - name: argocd-sync-and-wait
+    inputs:
+      parameters:
+      - name: argocd-version
+        value: v2.6.15
+      - name: flags
+        value: --
+      - name: argocd-server-address
+        value: argocd-server.argocd.svc.cluster.local
+      - name: argocd-credentials-secret
+        value: argocd-credentials
+    script:
+      image: argoproj/argocd:{{inputs.parameters.argocd-version}}
+      command: [bash]
+      env:
+        - name: ARGOCD_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: "{{inputs.parameters.argocd-credentials-secret}}"
+              key: token
+              optional: true
+        - name: ARGOCD_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: "{{inputs.parameters.argocd-credentials-secret}}"
+              key: username
+              optional: true
+        - name: ARGOCD_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{inputs.parameters.argocd-credentials-secret}}"
+              key: password
+              optional: true
+        - name: ARGOCD_SERVER
+          value: "{{inputs.parameters.argocd-server-address}}"
+        - name: ARGOCD_OPTS
+          value: --insecure
+      source: |
+        #!/bin/bash
+
+        set -euo pipefail
+
+        if [[ -z $ARGOCD_AUTH_TOKEN ]] && [[ -z "$ARGOCD_USERNAME" || -z "$ARGOCD_PASSWORD" ]]; then
+          echo "Either the ARGOCD_AUTH_TOKEN must be specified, or the ARGOCD_USERNAME/ARGOCD_PASSWORD must be specified."
+          exit 1
+        fi
+
+        if [ -z $ARGOCD_AUTH_TOKEN ]; then
+          yes | argocd login "$ARGOCD_SERVER" --username=$ARGOCD_USERNAME --password=$ARGOCD_PASSWORD {{inputs.parameters.flags}}
+        fi
+
+        echo "Running as ArgoCD User:"
+        argocd account get-user-info {{inputs.parameters.flags}}
+
+        argocd app set {{workflow.parameters.application-name}} --revision {{workflow.parameters.revision}}
+        argocd app sync {{workflow.parameters.application-name}} --revision {{workflow.parameters.revision}} {{inputs.parameters.flags}}
+        argocd app wait {{workflow.parameters.application-name}} --health {{inputs.parameters.flags}}
