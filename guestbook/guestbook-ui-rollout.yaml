@@ -6,7 +6,7 @@ spec:
   replicas: 5
   selector:
     matchLabels:
-      app: rollout-ref-deployment
+      app: guestbook-ui
   workloadRef:                                 # Reference an existing Deployment using workloadRef field
     apiVersion: apps/v1
     kind: Deployment
