@@ -1,3 +1,23 @@
+apiVersion: argoproj.io/v1alpha1               # Create a rollout resource
+kind: Rollout
+metadata:
+  name: guestbook-ui-rollout
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: rollout-ref-deployment
+  workloadRef:                                 # Reference an existing Deployment using workloadRef field
+    apiVersion: apps/v1
+    kind: Deployment
+    name: guestbook-ui
+    scaleDown: onsuccess
+  strategy:
+    canary:
+      steps:
+        - setWeight: 20
+        - pause: {duration: 10s}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
