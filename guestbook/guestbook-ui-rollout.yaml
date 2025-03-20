@@ -16,11 +16,10 @@ spec:
     metadata:
       labels:
         app: guestbook-ui
-        # role: active
         product: engineering-productivity
         team: deploy-platform
         project: guestbook
-        version: else
+        another: label
     spec:
       containers:
         - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
@@ -36,11 +35,5 @@ spec:
     blueGreen:
       activeService: guestbook-ui
       previewService: guestbook-ui-preview
-
-      # activeMetadata:
-      #   labels:
-      #     role: active
-
-      # previewMetadata:
-      #   labels:
-      #     role: preview
+      previewReplicaCount: 1
+      autoPromotionSeconds: 30
