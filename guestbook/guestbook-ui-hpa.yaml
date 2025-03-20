@@ -4,9 +4,9 @@ metadata:
   name: guestbook-ui
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: guestbook-ui
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    name: guestbook-ui-rollout
   minReplicas: 1
   maxReplicas: 4
   metrics:
