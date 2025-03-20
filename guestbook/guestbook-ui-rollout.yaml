@@ -20,10 +20,10 @@ spec:
         product: engineering-productivity
         team: deploy-platform
         project: guestbook
-        version: something
+        version: else
     spec:
       containers:
-        - image: gcr.io/heptio-images/ks-guestbook-demo:latest
+        - image: gcr.io/heptio-images/ks-guestbook-demo:0.2
           name: guestbook-ui
           ports:
             - containerPort: 80
