@@ -35,3 +35,11 @@ spec:
     blueGreen:
       activeService: guestbook-ui
       previewService: guestbook-ui-preview
+
+      activeMetadata:
+        labels:
+          role: active
+
+      previewMetadata:
+        labels:
+          role: preview
