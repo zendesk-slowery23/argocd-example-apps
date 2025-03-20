@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: tasks
+  namespace: argo
+  labels:
+    team: deploy-platform
+    product: engineering-productivity
+    project: argo
+spec:
+  ttlStrategy:
+    secondsAfterSuccess: 300  # 5 minutes after success
+    secondsAfterFailure: 86400  # 24 hours (86400 seconds) after failure
+  templates:
+    - name: judgement
+      suspend: {}
+
+    - name: sleep
+      inputs:
+        parameters:
+        - name: duration
+          value: "10"
+      container:
+        image: alpine:3.7
+        command: [sh, -c]
+        args: ["sleep {{inputs.parameters.duration}}"]
+
+

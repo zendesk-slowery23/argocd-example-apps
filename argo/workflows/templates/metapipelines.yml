@@ -1,0 +1,241 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: metapipelines
+  namespace: argo
+  labels:
+    team: deploy-platform
+    product: engineering-productivity
+    project: argo
+spec:
+  ttlStrategy:
+    secondsAfterSuccess: 300  # 5 minutes after success
+    secondsAfterFailure: 86400  # 24 hours (86400 seconds) after failure
+  arguments:
+    parameters:
+      - name: application
+      - name: revision
+  entrypoint: standard-pods
+  templates:
+  - name: standard-pods
+    dag:
+      tasks:
+      - name: pod26
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+          - name: skip-sync
+            value: "false"
+      - name: phase2-continue
+        dependencies: [pod26]
+        templateRef:
+          clusterScope: true
+          name: tasks
+          template: judgement
+      - name: pod15
+        dependencies: [phase2-continue]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod25
+        dependencies: [phase2-continue]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod30
+        dependencies: [phase2-continue]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: phase3-soak
+        dependencies: [pod15, pod25, pod30]
+        templateRef:
+          clusterScope: true
+          name: tasks
+          template: sleep
+      - name: pod13
+        dependencies: [phase3-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod17
+        dependencies: [phase3-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod18
+        dependencies: [phase3-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod19
+        dependencies: [phase3-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod31
+        dependencies: [phase3-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: phase4-soak
+        dependencies: [pod13, pod17, pod18, pod19, pod31]
+        templateRef:
+          clusterScope: true
+          name: tasks
+          template: sleep
+      - name: pod20
+        dependencies: [phase4-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod23
+        dependencies: [phase4-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod27
+        dependencies: [phase4-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod28
+        dependencies: [phase4-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+      - name: pod29
+        dependencies: [phase4-soak]
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+  - name: internaltools
+    dag:
+      tasks:
+      - name: internaltools-production-use1
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+          - name: skip-sync
+            value: "false"
+  - name: sell
+    dag:
+      tasks:
+      - name: sell-dmz-production
+        templateRef:
+          clusterScope: true
+          name: pod
+          template: pod
+        arguments:
+          parameters:
+          - name: application
+            value: "{{workflow.parameters.application}}"
+          - name: revision
+            value: "{{workflow.parameters.revision}}"
+          - name: skip-sync
+            value: "false"

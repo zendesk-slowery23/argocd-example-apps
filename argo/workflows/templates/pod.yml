@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: pod
+  namespace: argo
+  labels:
+    team: deploy-platform
+    product: engineering-productivity
+    project: argo
+spec:
+  entrypoint: pod
+  templates:
+  - name: pod
+    inputs:
+      parameters:
+      - name: application
+      - name: revision
+      - name: skip-sync
+        value: "true"
+    script:
+      image: argoproj/argocd:v2.6.15
+      command: [bash]
+      envFrom:
+        - configMapRef:
+            name: argocd-config
+        - secretRef:
+            name: argocd-credentials
+      source: |
+        #!/bin/bash
+
+        set -euo pipefail
+
+        # We would likely build a custom image rather than a gnarly bash script so it can be tested and maintained more easily
+        # This is just a placeholder to demonstrate the concept
+
+        echo "⏱️ Creating GitHub Deployment for {{inputs.parameters.application}} revision {{inputs.parameters.revision}}..."
+        sleep 1
+        echo "✅ GitHub Deployment created."
+        echo ""
+
+        echo "⏱️ Syncing infrastructure through Self Service Interface..."
+        sleep 3
+        echo "✅ Infrastructure synced."
+        echo ""
+
+        # Check if skip-sync is true
+        if [[ "{{inputs.parameters.skip-sync}}" == "true" ]]; then
+          echo "⏭️ Skipping ArgoCD sync as per the skip-sync parameter."
+          echo ""
+        else
+          echo "⏱️ Syncing ArgoCD application {{inputs.parameters.application}} to revision {{inputs.parameters.revision}}..."
+          echo ""
+          if [[ -z $ARGOCD_AUTH_TOKEN ]] && [[ -z "$ARGOCD_USERNAME" || -z "$ARGOCD_PASSWORD" ]]; then
+            echo "Either the ARGOCD_AUTH_TOKEN must be specified, or the ARGOCD_USERNAME/ARGOCD_PASSWORD must be specified."
+            exit 1
+          fi
+
+          if [ -z $ARGOCD_AUTH_TOKEN ]; then
+            yes | argocd login "$ARGOCD_SERVER" --username=$ARGOCD_USERNAME --password=$ARGOCD_PASSWORD
+          fi
+
+          argocd app set {{inputs.parameters.application}} --revision {{inputs.parameters.revision}}
+          argocd app sync {{inputs.parameters.application}}
+          argocd app wait {{inputs.parameters.application}} --health
+          echo "✅ ArgoCD application synced."
+          echo ""
+        fi
+
+        echo "⏱️ Executing post-deployment Test Manifest tests..."
+        sleep 10
+        echo "✅ Post-deployment tests passed."
