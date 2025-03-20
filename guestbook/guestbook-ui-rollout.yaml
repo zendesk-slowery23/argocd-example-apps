@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app: guestbook-ui
+        role: active
         product: engineering-productivity
         team: deploy-platform
         project: guestbook
