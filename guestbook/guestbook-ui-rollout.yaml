@@ -16,7 +16,7 @@ spec:
     metadata:
       labels:
         app: guestbook-ui
-        role: active
+        # role: active
         product: engineering-productivity
         team: deploy-platform
         project: guestbook
@@ -37,10 +37,10 @@ spec:
       activeService: guestbook-ui
       previewService: guestbook-ui-preview
 
-      activeMetadata:
-        labels:
-          role: active
+      # activeMetadata:
+      #   labels:
+      #     role: active
 
-      previewMetadata:
-        labels:
-          role: preview
+      # previewMetadata:
+      #   labels:
+      #     role: preview
